@@ -82,3 +82,10 @@ async def process_files_root(files: List[UploadFile] = File(...)) -> StreamingRe
     return await _handle_conversion(files)
 
 
+@app.post("/api/process")
+async def process_files_api(files: List[UploadFile] = File(...)) -> StreamingResponse:
+    """Additional alias for platforms that forward the full path."""
+
+    return await _handle_conversion(files)
+
+
