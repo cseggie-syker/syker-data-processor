@@ -229,7 +229,7 @@ export function FileUploadForm({ className }: Props) {
       } catch (err) {
         let message = err instanceof Error ? err.message : "Upload failed. Please try again.";
         if (message === "Failed to fetch") {
-          message = "Failed to fetch. If you uploaded a folder, please zip it before retrying.";
+          message = (`Failed to fetch. If you are uploading a file folder, please ensure the folder is zipped/compressed. To try again, press the "Reset" option to clear all uploads. Then select or drag & drop the zipped/compressed folder and try again.`);
         }
         setError(message);
         setStatus("error");
