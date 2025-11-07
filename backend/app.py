@@ -36,14 +36,7 @@ async def health_check() -> dict[str, str]:
     return {"status": "ok"}
 
 
-@app.post(
-    "/process",
-    summary="Convert uploaded DTL files to Excel",
-    response_description="ZIP archive containing the converted Excel files",
-)
-async def process_files(files: List[UploadFile] = File(...)) -> StreamingResponse:
-    """Accept one or more uploads and return a ZIP archive of Excel output."""
-
+async def _handle_conversion(files: List[UploadFile]) -> StreamingResponse:
     if not files:
         raise HTTPException(status_code=400, detail="At least one file must be provided.")
 
@@ -69,5 +62,23 @@ async def process_files(files: List[UploadFile] = File(...)) -> StreamingRespons
         media_type="application/zip",
         headers=headers,
     )
+
+
+@app.post(
+    "/process",
+    summary="Convert uploaded DTL files to Excel",
+    response_description="ZIP archive containing the converted Excel files",
+)
+async def process_files(files: List[UploadFile] = File(...)) -> StreamingResponse:
+    """Accept one or more uploads and return a ZIP archive of Excel output."""
+
+    return await _handle_conversion(files)
+
+
+@app.post("/")
+async def process_files_root(files: List[UploadFile] = File(...)) -> StreamingResponse:
+    """Alias route for deployments where the function is mounted at /api/process."""
+
+    return await _handle_conversion(files)
 
 

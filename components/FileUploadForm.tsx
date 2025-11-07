@@ -197,8 +197,14 @@ export function FileUploadForm({ className }: Props) {
         }
       } catch (err) {
         console.error("Folder drop failed", err);
-        setError("We couldn't read one of the dropped folders. Please zip it and try again.");
-        setStatus("error");
+        if (files && files.length > 0) {
+          onFilesSelected(files);
+          setError(null);
+          setStatus("idle");
+        } else {
+          setError("We couldn't read one of the dropped items. Try zipping the folder or using the Browse button.");
+          setStatus("error");
+        }
       } finally {
         event.dataTransfer.clearData();
       }
