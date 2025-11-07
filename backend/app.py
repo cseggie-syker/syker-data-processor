@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import io
-from typing import List
+from typing import List, Optional
 
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 
@@ -36,7 +36,7 @@ async def health_check() -> dict[str, str]:
     return {"status": "ok"}
 
 
-async def _handle_conversion(files: List[UploadFile]) -> StreamingResponse:
+async def _handle_conversion(files: List[UploadFile], archive_label: Optional[str] = None) -> StreamingResponse:
     if not files:
         raise HTTPException(status_code=400, detail="At least one file must be provided.")
 
@@ -46,7 +46,7 @@ async def _handle_conversion(files: List[UploadFile]) -> StreamingResponse:
         uploads.append(UploadedItem(filename=upload.filename or "uploaded.dtl", content=contents))
 
     try:
-        result = processor.process_uploads(uploads)
+        result = processor.process_uploads(uploads, archive_label=archive_label)
     except DTLProcessingError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
@@ -69,23 +69,23 @@ async def _handle_conversion(files: List[UploadFile]) -> StreamingResponse:
     summary="Convert uploaded DTL files to Excel",
     response_description="ZIP archive containing the converted Excel files",
 )
-async def process_files(files: List[UploadFile] = File(...)) -> StreamingResponse:
+async def process_files(files: List[UploadFile] = File(...), archive_label: Optional[str] = Form(None)) -> StreamingResponse:
     """Accept one or more uploads and return a ZIP archive of Excel output."""
 
-    return await _handle_conversion(files)
+    return await _handle_conversion(files, archive_label)
 
 
 @app.post("/")
-async def process_files_root(files: List[UploadFile] = File(...)) -> StreamingResponse:
+async def process_files_root(files: List[UploadFile] = File(...), archive_label: Optional[str] = Form(None)) -> StreamingResponse:
     """Alias route for deployments where the function is mounted at /api/process."""
 
-    return await _handle_conversion(files)
+    return await _handle_conversion(files, archive_label)
 
 
 @app.post("/api/process")
-async def process_files_api(files: List[UploadFile] = File(...)) -> StreamingResponse:
+async def process_files_api(files: List[UploadFile] = File(...), archive_label: Optional[str] = Form(None)) -> StreamingResponse:
     """Additional alias for platforms that forward the full path."""
 
-    return await _handle_conversion(files)
+    return await _handle_conversion(files, archive_label)
 
 

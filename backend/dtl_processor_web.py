@@ -33,6 +33,7 @@ import os
 import shutil
 import struct
 import tempfile
+import re
 import zipfile
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -276,6 +277,12 @@ class DTLWebProcessor:
         return decoded_results
 
     @staticmethod
+    def _sanitize_archive_label(label: str) -> str:
+        sanitized = re.sub(r"[^A-Za-z0-9_-]+", "-", label.strip())
+        sanitized = re.sub(r"-{2,}", "-", sanitized).strip("-_")
+        return sanitized or "Syker_Processed_Data"
+
+    @staticmethod
     def _column_mapping(file_type: str) -> Dict[str, str]:
         value_columns = {
             "co2days": "CO2 Emissions Prevented (kg)",
@@ -376,7 +383,9 @@ class DTLWebProcessor:
         decoded = self._decode_all_files(discovery)
 
         timestamp = datetime.now().strftime("%Y%m%d")
-        folder_name = archive_label or f"Syker_Processed_Data_{timestamp}"
+        base_label_input = archive_label or "Syker_Processed_Data"
+        base_label = self._sanitize_archive_label(base_label_input)
+        folder_name = f"{base_label}-Converted{timestamp}"
         export_root = directory / folder_name
         export_root.mkdir(parents=True, exist_ok=True)
 
