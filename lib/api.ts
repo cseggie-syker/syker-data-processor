@@ -1,4 +1,4 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || "";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "");
 
 export async function processUpload(files: File[]): Promise<void> {
   const formData = new FormData();
@@ -6,7 +6,7 @@ export async function processUpload(files: File[]): Promise<void> {
     formData.append("files", file, file.name);
   });
 
-  const endpoint = API_BASE ? `${API_BASE}/process` : "/process";
+  const endpoint = API_BASE ? `${API_BASE}/process` : "/api/process";
 
   const response = await fetch(endpoint, {
     method: "POST",
