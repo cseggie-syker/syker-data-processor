@@ -16,8 +16,8 @@ export default function HomePage() {
         </p>
       </header>
 
-      <section className="mt-12 w-full">
-        <FileUploadForm />
+      <section className="mt-12 w-full flex justify-center">
+        <FileUploadForm className="mx-auto" />
       </section>
 
       <section className="mt-16 grid gap-6 text-sm text-slate-600 md:grid-cols-3">

@@ -202,7 +202,9 @@ export function FileUploadForm({ className }: Props) {
           setError(null);
           setStatus("idle");
         } else {
-          setError("We couldn't read one of the dropped items. Try zipping the folder or using the Browse button.");
+          setError(
+            "We couldn't read one of the dropped items. Please zip the folder first or use the Browse button.",
+          );
           setStatus("error");
         }
       } finally {
@@ -225,7 +227,10 @@ export function FileUploadForm({ className }: Props) {
         setStatus("success");
         reset();
       } catch (err) {
-        const message = err instanceof Error ? err.message : "Upload failed. Please try again.";
+        let message = err instanceof Error ? err.message : "Upload failed. Please try again.";
+        if (message === "Failed to fetch") {
+          message = "Failed to fetch. If you uploaded a folder, please zip it before retrying.";
+        }
         setError(message);
         setStatus("error");
       }
